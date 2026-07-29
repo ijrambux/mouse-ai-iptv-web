@@ -1,0 +1,282 @@
+/* MOUSE AI IPTV Pro v4.0 - Web Edition Styles */
+
+:root {
+    --bg-dark: #0a0c0f;
+    --bg-card: #111418;
+    --bg-input: #161a20;
+    --border: #1e242c;
+    --border-hover: #2a333f;
+    --green: #00ff88;
+    --green-dim: #00cc6a;
+    --red: #ff2a2a;
+    --red-dim: #cc2222;
+    --white: #ffffff;
+    --text-primary: #ffffff;
+    --text-secondary: #8b95a5;
+    --text-muted: #5a6470;
+    --fire-orange: #ff6b35;
+}
+
+* { 
+    font-family: 'Cairo', sans-serif; 
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+}
+
+/* Scrollbar */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: var(--bg-dark); }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--green); }
+
+/* Fire Logo Animation */
+@keyframes fireGlow {
+    0%, 100% { 
+        text-shadow: 0 0 10px #ff6b35, 0 0 20px #ff6b35, 0 0 40px #ff2a2a;
+        color: #ff6b35;
+    }
+    33% { 
+        text-shadow: 0 0 10px #ff2a2a, 0 0 20px #ff2a2a, 0 0 40px #ff6b35;
+        color: #ff2a2a;
+    }
+    66% { 
+        text-shadow: 0 0 10px #ffaa00, 0 0 20px #ff6b35, 0 0 40px #ff2a2a;
+        color: #ffaa00;
+    }
+}
+
+.fire-logo {
+    animation: fireGlow 2s ease-in-out infinite;
+    background: linear-gradient(90deg, #ff6b35, #ff2a2a, #ffaa00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Tailwind Colors Override */
+.bg-dark { background-color: var(--bg-dark) !important; }
+.bg-card { background-color: var(--bg-card) !important; }
+.bg-input { background-color: var(--bg-input) !important; }
+.border-border { border-color: var(--border) !important; }
+.text-green { color: var(--green) !important; }
+.text-red { color: var(--red) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-muted { color: var(--text-muted) !important; }
+
+/* Fire Buttons */
+.btn-fire {
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+.btn-green {
+    background: linear-gradient(to bottom, var(--green), var(--green-dim));
+    border-color: var(--green);
+    color: var(--bg-dark);
+}
+.btn-green:hover {
+    background: linear-gradient(to bottom, var(--green-dim), var(--green));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 255, 136, 0.2);
+}
+.btn-green:active { transform: translateY(0); }
+
+.btn-white {
+    background: linear-gradient(to bottom, #ffffff, #e0e0e0);
+    border-color: #ffffff;
+    color: var(--bg-dark);
+}
+.btn-white:hover {
+    background: linear-gradient(to bottom, #f0f0f0, #ffffff);
+    transform: translateY(-1px);
+}
+
+.btn-outline {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--text-primary);
+}
+.btn-outline:hover {
+    border-color: var(--green);
+    background: rgba(0, 255, 136, 0.05);
+}
+.btn-outline.active {
+    background: var(--green);
+    border-color: var(--green-dim);
+    color: var(--bg-dark);
+}
+
+/* Control Buttons */
+.ctrl-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--bg-input);
+    border: 2px solid var(--border);
+    color: var(--green);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.ctrl-btn:hover {
+    background: var(--green);
+    border-color: var(--green);
+    color: var(--bg-dark);
+}
+
+/* Range Input Styling */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--bg-input);
+    border-radius: 3px;
+    height: 5px;
+    outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--green);
+    border: 2px solid white;
+    cursor: pointer;
+    margin-top: -4.5px;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 5px;
+    border-radius: 3px;
+    background: var(--bg-input);
+}
+input[type="range"]:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Channel Items */
+.channel-item {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(22, 26, 32, 0.5);
+    margin-bottom: 4px;
+}
+.channel-item:hover {
+    background: var(--bg-input);
+    border-color: var(--border-hover);
+}
+.channel-item.active {
+    background: var(--green);
+    border-color: var(--green-dim);
+    color: var(--bg-dark);
+}
+.channel-item.active .channel-name { color: var(--bg-dark); font-weight: 700; }
+.channel-item.active .channel-group { color: rgba(10, 12, 15, 0.7); }
+
+.channel-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.channel-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.channel-group {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+.channel-fav {
+    margin-right: auto;
+    color: var(--red);
+    font-size: 12px;
+}
+
+/* Modal */
+.modal-enter { animation: modalIn 0.2s ease-out; }
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Video Player */
+video {
+    outline: none;
+}
+video::-webkit-media-controls {
+    display: none !important;
+}
+
+/* Server Item in Manage */
+.server-item {
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.server-item:hover { border-color: var(--border-hover); }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed !important;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 85% !important;
+        max-width: 360px;
+    }
+    .fire-logo { font-size: 1.5rem; }
+    .ctrl-btn { width: 36px; height: 36px; }
+}
+
+/* Selection color */
+::selection {
+    background: var(--green);
+    color: var(--bg-dark);
+}
+
+/* Focus states */
+input:focus, select:focus, textarea:focus {
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+}
+
+/* Type badge colors */
+.badge-xtream { background: var(--green); color: var(--bg-dark); }
+.badge-cccam { background: var(--fire-orange); color: white; }
+.badge-mac { background: #3b82f6; color: white; }
+.badge-unknown { background: var(--red); color: white; }
