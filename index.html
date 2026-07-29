@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MOUSE AI IPTV Pro v4.0 - Web Edition</title>
+    <meta name="description" content="MOUSE AI IPTV Pro - Universal Server Reader">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-dark text-white overflow-hidden h-screen w-screen select-none">
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-dark">
+        <div class="fire-logo text-5xl md:text-7xl font-black mb-4" id="loading-logo">MOUSE</div>
+        <div class="text-green text-sm md:text-base font-bold tracking-widest">MOUSE AI IPTV PRO v4.0</div>
+        <div class="mt-6 w-48 h-1 bg-card rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-green to-green-dim animate-pulse rounded-full" style="width: 80%"></div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="flex h-full w-full opacity-0 transition-opacity duration-700">
+
+        <!-- Sidebar (Channels Panel) -->
+        <aside id="sidebar" class="sidebar bg-card border-l border-border flex flex-col w-full md:w-[420px] lg:w-[460px] h-full absolute md:relative z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+
+            <!-- Header -->
+            <div class="p-4 border-b border-border bg-dark/50 backdrop-blur">
+                <div class="flex items-center justify-center mb-2">
+                    <div class="fire-logo text-3xl font-black">MOUSE</div>
+                </div>
+                <div class="text-center text-green text-xs font-bold mb-1">MOUSE AI IPTV PRO</div>
+                <div class="text-center text-muted text-[10px]">v4.0 ULTIMATE WEB EDITION</div>
+            </div>
+
+            <!-- Server Section -->
+            <div class="p-3 space-y-2 border-b border-border">
+                <label class="text-green text-xs font-bold block"><i class="fas fa-server ml-1"></i> اختر المصدر</label>
+                <select id="server-select" class="w-full bg-input border border-border hover:border-green rounded-xl px-3 py-2 text-sm text-white focus:border-green focus:outline-none transition-colors">
+                    <option value="builtin">Islamic Algeria Tunisia Morocco</option>
+                    <option value="http://tv14s.xyz:8080/get.php?username=rossjohn88@hotmail.com&password=KCBKTCnWTU&type=m3u">TV14S (Main)</option>
+                    <option value="http://51.81.106.100:25461/get.php?username=sjzumbro7&password=7407045283&type=m3u">51.81.106.100 (Backup)</option>
+                    <option value="http://skytv4k.org:8080/get.php?username=2rSvsynKRJ&password=5GHeYZFNwI&type=m3u_plus">SkyTV4K (Backup 2)</option>
+                    <option value="http://garaveli.123tv.to:8080/get.php?username=2rSvsynKRJ&password=5GHeYZFNwI&type=m3u_plus">Garaveli (Backup 3)</option>
+                </select>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="app.loadChannels()" class="btn-fire btn-green text-sm py-2.5">
+                        <i class="fas fa-sync-alt ml-1"></i> تحميل القنوات
+                    </button>
+                    <button onclick="document.getElementById('file-input').click()" class="btn-fire btn-white text-sm py-2.5">
+                        <i class="fas fa-file-import ml-1"></i> ملف M3U
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="app.openAddCode()" class="btn-fire btn-green text-sm py-2.5">
+                        <i class="fas fa-plus ml-1"></i> إضافة كود
+                    </button>
+                    <button onclick="app.openManageServers()" class="btn-fire btn-white text-sm py-2.5">
+                        <i class="fas fa-cogs ml-1"></i> إدارة
+                    </button>
+                </div>
+                <input type="file" id="file-input" accept=".m3u,.m3u8" class="hidden" onchange="app.loadFromFile(this)">
+            </div>
+
+            <!-- Progress -->
+            <div id="progress-container" class="hidden px-3 py-2">
+                <div class="w-full h-1.5 bg-card rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-green rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div id="status-text" class="text-center text-muted text-[10px] mt-1">جاري التحميل...</div>
+            </div>
+
+            <!-- Filters -->
+            <div class="p-3 space-y-2 border-b border-border">
+                <select id="group-select" onchange="app.filterChannels()" class="w-full bg-input border border-border hover:border-green rounded-xl px-3 py-2 text-sm text-white focus:border-green focus:outline-none transition-colors">
+                    <option value="all">جميع المجموعات</option>
+                </select>
+                <div class="relative">
+                    <input type="text" id="search-input" oninput="app.filterChannels()" placeholder="ابحث عن قناة..." 
+                        class="w-full bg-input border border-border hover:border-green rounded-xl px-3 py-2 pr-9 text-sm text-white focus:border-green focus:outline-none transition-colors">
+                    <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 text-muted text-xs"></i>
+                </div>
+            </div>
+
+            <!-- Channels List -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-2" id="channels-container">
+                <div id="channels-list" class="space-y-1"></div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-3 border-t border-border bg-dark/30">
+                <div class="flex gap-2 mb-2">
+                    <button id="fav-btn" onclick="app.toggleFavView()" class="flex-1 btn-fire btn-outline text-xs py-2">
+                        <i class="fas fa-heart ml-1"></i> المفضلة
+                    </button>
+                    <button onclick="app.openSettings()" class="flex-1 btn-fire btn-outline text-xs py-2">
+                        <i class="fas fa-cog ml-1"></i> الإعدادات
+                    </button>
+                </div>
+                <div id="count-label" class="text-center text-muted text-[10px] font-bold">0 قناة</div>
+                <div class="text-center text-muted text-[9px] mt-1">
+                    (c) 2025 MOUSE AI | <a href="https://x.com/0000000000388p" target="_blank" class="text-green hover:underline">@0000000000388p</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Mobile Toggle -->
+        <button id="sidebar-toggle" onclick="app.toggleSidebar()" class="md:hidden fixed top-4 left-4 z-40 w-10 h-10 bg-card border border-border rounded-xl flex items-center justify-center text-green shadow-lg">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Overlay for mobile -->
+        <div id="sidebar-overlay" onclick="app.toggleSidebar()" class="fixed inset-0 bg-black/60 z-20 hidden md:hidden backdrop-blur-sm"></div>
+
+        <!-- Main Player Area -->
+        <main class="flex-1 flex flex-col h-full relative bg-black">
+
+            <!-- Video Container -->
+            <div class="flex-1 relative flex items-center justify-center bg-black group" id="video-wrapper">
+                <video id="video-player" class="w-full h-full object-contain" playsinline webkit-playsinline></video>
+
+                <!-- Play Overlay -->
+                <div id="play-overlay" class="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer" onclick="app.togglePlay()">
+                    <div class="w-20 h-20 rounded-full bg-green/20 flex items-center justify-center backdrop-blur border-2 border-green">
+                        <i class="fas fa-play text-3xl text-green ml-1"></i>
+                    </div>
+                </div>
+
+                <!-- Loading Spinner -->
+                <div id="video-loading" class="absolute inset-0 flex items-center justify-center bg-black/60 hidden">
+                    <div class="w-12 h-12 border-4 border-green/30 border-t-green rounded-full animate-spin"></div>
+                </div>
+
+                <!-- Server Info Bar -->
+                <div id="server-info" class="absolute top-4 right-4 left-4 md:left-auto md:w-auto bg-card/90 backdrop-blur border border-green/30 rounded-xl px-4 py-2 hidden">
+                    <div id="server-info-text" class="text-green text-xs font-bold"></div>
+                </div>
+            </div>
+
+            <!-- Controls Bar -->
+            <div class="bg-card border-t border-border p-3 md:p-4 space-y-3">
+
+                <!-- Progress -->
+                <div class="relative group">
+                    <input type="range" id="progress-slider" min="0" max="1000" value="0" disabled
+                        class="w-full h-1.5 bg-input rounded-full appearance-none cursor-pointer accent-green disabled:opacity-30">
+                </div>
+
+                <!-- Controls Row -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2 md:gap-3">
+                        <button onclick="app.playPrevious()" class="ctrl-btn" title="السابق">
+                            <i class="fas fa-step-backward"></i>
+                        </button>
+                        <button onclick="app.togglePlay()" id="play-btn" class="w-12 h-12 rounded-xl bg-gradient-to-b from-red to-red-dim border-2 border-red text-white text-xl flex items-center justify-center hover:brightness-110 active:scale-95 transition-all" title="تشغيل/إيقاف">
+                            <i class="fas fa-play ml-0.5"></i>
+                        </button>
+                        <button onclick="app.stopPlayback()" class="ctrl-btn border-red text-red hover:bg-red hover:text-dark" title="إيقاف">
+                            <i class="fas fa-stop"></i>
+                        </button>
+                        <button onclick="app.playNext()" class="ctrl-btn" title="التالي">
+                            <i class="fas fa-step-forward"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2 md:gap-3">
+                        <button onclick="app.toggleMute()" id="mute-btn" class="ctrl-btn" title="كتم الصوت">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                        <div class="hidden md:flex items-center gap-2 w-32">
+                            <input type="range" id="volume-slider" min="0" max="100" value="100" oninput="app.setVolume(this.value)"
+                                class="flex-1 h-1 bg-input rounded-full appearance-none cursor-pointer accent-green">
+                        </div>
+                        <button onclick="app.toggleFullscreen()" class="ctrl-btn" title="ملء الشاشة">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Info Label -->
+                <div id="info-label" class="text-center text-secondary text-xs md:text-sm font-bold truncate px-4">
+                    جاهز - اختر قناة للتشغيل
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Code Modal -->
+    <div id="modal-add-code" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-card border border-border rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
+            <div class="p-4 border-b border-border flex items-center justify-between">
+                <h2 class="text-green font-bold text-lg"><i class="fas fa-plus-circle ml-2"></i> إضافة كود IPTV</h2>
+                <button onclick="app.closeModal('modal-add-code')" class="w-8 h-8 rounded-lg bg-input hover:bg-border flex items-center justify-center text-muted hover:text-white transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                <div class="bg-dark rounded-xl p-4 border border-border">
+                    <label class="text-green text-xs font-bold block mb-2">الصق الكود هنا (يدعم جميع الأنواع):</label>
+                    <textarea id="code-input" rows="5" placeholder="[C: host.com 12000 user pass]
+[http://host:port | user | pass]
+[A0:BB:3E:18:9E:02 + http://host:port]
+[N: host.com 12000 user pass 01 02 03...]"
+                        class="w-full bg-input border border-border rounded-xl p-3 text-sm text-white font-mono focus:border-green focus:outline-none resize-none"></textarea>
+                    <button onclick="app.parseCode()" class="btn-fire btn-green w-full mt-3 py-3">
+                        <i class="fas fa-magic ml-1"></i> تحليل الكود تلقائياً
+                    </button>
+                    <div id="type-badge" class="mt-3 text-center py-2 rounded-xl bg-input border border-border text-muted text-sm font-bold">
+                        لم يتم التعرف بعد
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-secondary text-xs block mb-1">الاسم</label>
+                        <input type="text" id="manual-name" placeholder="اسم السيرفر" class="w-full bg-input border border-border rounded-xl px-3 py-2 text-sm text-white focus:border-green focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-secondary text-xs block mb-1">النوع</label>
+                        <select id="manual-type" class="w-full bg-input border border-border rounded-xl px-3 py-2 text-sm text-white focus:border-green focus:outline-none">
+                            <option value="m3u_plus">M3U Plus (مستحسن)</option>
+                            <option value="m3u">M3U قياسي</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-secondary text-xs block mb-1">الخادم (Host)</label>
+                        <input type="text" id="manual-host" placeholder="http://host.com:8080" class="w-full bg-input border border-border rounded-xl px-3 py-2 text-sm text-white focus:border-green focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-secondary text-xs block mb-1">اسم المستخدم</label>
+                        <input type="text" id="manual-user" placeholder="username" class="w-full bg-input border border-border rounded-xl px-3 py-2 text-sm text-white focus:border-green focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-secondary text-xs block mb-1">كلمة المرور</label>
+                        <input type="text" id="manual-pass" placeholder="password" class="w-full bg-input border border-border rounded-xl px-3 py-2 text-sm text-white focus:border-green focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-secondary text-xs block mb-1">عنوان MAC (اختياري)</label>
+                        <input type="text" id="manual-mac" placeholder="A0:BB:3E:18:9E:02" class="w-full bg-input border border-border rounded-xl px-3 py-2 text-sm text-white focus:border-green focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="bg-dark rounded-xl p-3 border border-green/30">
+                    <label class="text-green text-xs font-bold block mb-1">الرابط النهائي:</label>
+                    <input type="text" id="preview-url" readonly placeholder="سيظهر الرابط هنا..." 
+                        class="w-full bg-dark border border-green rounded-xl px-3 py-2 text-sm text-green font-mono focus:outline-none">
+                </div>
+            </div>
+            <div class="p-4 border-t border-border flex gap-2">
+                <button onclick="app.addServer()" class="btn-fire btn-green flex-1 py-3">
+                    <i class="fas fa-check ml-1"></i> إضافة السيرفر
+                </button>
+                <button onclick="app.closeModal('modal-add-code')" class="btn-fire btn-white flex-1 py-3">
+                    <i class="fas fa-times ml-1"></i> إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Servers Modal -->
+    <div id="modal-manage" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-card border border-border rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl">
+            <div class="p-4 border-b border-border flex items-center justify-between">
+                <h2 class="text-green font-bold text-lg"><i class="fas fa-server ml-2"></i> إدارة السيرفرات</h2>
+                <button onclick="app.closeModal('modal-manage')" class="w-8 h-8 rounded-lg bg-input hover:bg-border flex items-center justify-center text-muted hover:text-white transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-auto p-4">
+                <div id="servers-table" class="space-y-2"></div>
+            </div>
+            <div class="p-4 border-t border-border">
+                <button onclick="app.closeModal('modal-manage')" class="btn-fire btn-green w-full py-3">
+                    <i class="fas fa-check ml-1"></i> إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="modal-settings" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-card border border-border rounded-2xl w-full max-w-md shadow-2xl">
+            <div class="p-4 border-b border-border flex items-center justify-between">
+                <h2 class="text-green font-bold text-lg"><i class="fas fa-cog ml-2"></i> الإعدادات</h2>
+                <button onclick="app.closeModal('modal-settings')" class="w-8 h-8 rounded-lg bg-input hover:bg-border flex items-center justify-center text-muted hover:text-white transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-4">
+                <div class="bg-dark rounded-xl p-3 border border-border">
+                    <label class="text-green text-xs font-bold block mb-2">إعدادات الصوت</label>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-secondary">الصوت</span>
+                        <input type="range" id="settings-volume" min="0" max="100" value="100" oninput="document.getElementById('vol-val').textContent=this.value+'%'"
+                            class="flex-1 h-1 bg-input rounded-full appearance-none cursor-pointer accent-green">
+                        <span id="vol-val" class="text-xs text-white font-mono w-10 text-left">100%</span>
+                    </div>
+                    <label class="flex items-center gap-2 mt-3 cursor-pointer">
+                        <input type="checkbox" id="mute-start" class="w-4 h-4 accent-green rounded">
+                        <span class="text-sm text-secondary">كتم الصوت عند البدء</span>
+                    </label>
+                </div>
+                <div class="bg-dark rounded-xl p-3 border border-border">
+                    <label class="text-green text-xs font-bold block mb-2">إعدادات الواجهة</label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="auto-load" class="w-4 h-4 accent-green rounded">
+                        <span class="text-sm text-secondary">تحميل تلقائي عند البدء</span>
+                    </label>
+                    <label class="flex items-center gap-2 mt-2 cursor-pointer">
+                        <input type="checkbox" id="show-info" checked class="w-4 h-4 accent-green rounded">
+                        <span class="text-sm text-secondary">عرض معلومات السيرفر</span>
+                    </label>
+                </div>
+                <div class="bg-dark rounded-xl p-3 border border-border">
+                    <label class="text-green text-xs font-bold block mb-2">الشبكة</label>
+                    <label class="text-secondary text-xs block mb-1">مهمة الاتصال (ثواني)</label>
+                    <input type="number" id="timeout-setting" value="45" min="5" max="120"
+                        class="w-full bg-input border border-border rounded-xl px-3 py-2 text-sm text-white focus:border-green focus:outline-none">
+                </div>
+            </div>
+            <div class="p-4 border-t border-border">
+                <button onclick="app.saveSettings()" class="btn-fire btn-green w-full py-3">
+                    <i class="fas fa-save ml-1"></i> حفظ الإعدادات
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Channel Info Modal -->
+    <div id="modal-info" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-card border border-border rounded-2xl w-full max-w-md shadow-2xl p-4">
+            <h2 class="text-green font-bold text-lg mb-3"><i class="fas fa-info-circle ml-2"></i> معلومات القناة</h2>
+            <div id="channel-info-content" class="space-y-2 text-sm"></div>
+            <button onclick="app.closeModal('modal-info')" class="btn-fire btn-green w-full mt-4 py-2.5">إغلاق</button>
+        </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
