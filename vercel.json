@@ -1,24 +1,7 @@
-
-vercel_json = '''{
+{
   "version": 2,
-  "name": "mouse-ai-iptv-pro",
   "rewrites": [
+    { "source": "/assets/:path*", "destination": "/assets/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
-      ]
-    }
   ]
-}'''
-
-with open('/mnt/agents/output/vercel.json', 'w', encoding='utf-8') as f:
-    f.write(vercel_json)
-
-print("✅ vercel.json saved")
-
+}
