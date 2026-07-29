@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+html_content = '''<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -25,10 +26,10 @@
 
     <!-- Main App -->
     <div id="app" class="flex h-full w-full opacity-0 transition-opacity duration-700">
-
+        
         <!-- Sidebar (Channels Panel) -->
         <aside id="sidebar" class="sidebar bg-card border-l border-border flex flex-col w-full md:w-[420px] lg:w-[460px] h-full absolute md:relative z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
-
+            
             <!-- Header -->
             <div class="p-4 border-b border-border bg-dark/50 backdrop-blur">
                 <div class="flex items-center justify-center mb-2">
@@ -48,7 +49,7 @@
                     <option value="http://skytv4k.org:8080/get.php?username=2rSvsynKRJ&password=5GHeYZFNwI&type=m3u_plus">SkyTV4K (Backup 2)</option>
                     <option value="http://garaveli.123tv.to:8080/get.php?username=2rSvsynKRJ&password=5GHeYZFNwI&type=m3u_plus">Garaveli (Backup 3)</option>
                 </select>
-
+                
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="app.loadChannels()" class="btn-fire btn-green text-sm py-2.5">
                         <i class="fas fa-sync-alt ml-1"></i> تحميل القنوات
@@ -120,11 +121,11 @@
 
         <!-- Main Player Area -->
         <main class="flex-1 flex flex-col h-full relative bg-black">
-
+            
             <!-- Video Container -->
             <div class="flex-1 relative flex items-center justify-center bg-black group" id="video-wrapper">
                 <video id="video-player" class="w-full h-full object-contain" playsinline webkit-playsinline></video>
-
+                
                 <!-- Play Overlay -->
                 <div id="play-overlay" class="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer" onclick="app.togglePlay()">
                     <div class="w-20 h-20 rounded-full bg-green/20 flex items-center justify-center backdrop-blur border-2 border-green">
@@ -145,7 +146,7 @@
 
             <!-- Controls Bar -->
             <div class="bg-card border-t border-border p-3 md:p-4 space-y-3">
-
+                
                 <!-- Progress -->
                 <div class="relative group">
                     <input type="range" id="progress-slider" min="0" max="1000" value="0" disabled
@@ -203,10 +204,7 @@
             <div class="flex-1 overflow-y-auto p-4 space-y-4">
                 <div class="bg-dark rounded-xl p-4 border border-border">
                     <label class="text-green text-xs font-bold block mb-2">الصق الكود هنا (يدعم جميع الأنواع):</label>
-                    <textarea id="code-input" rows="5" placeholder="[C: host.com 12000 user pass]
-[http://host:port | user | pass]
-[A0:BB:3E:18:9E:02 + http://host:port]
-[N: host.com 12000 user pass 01 02 03...]"
+                    <textarea id="code-input" rows="5" placeholder="[C: host.com 12000 user pass]\n[http://host:port | user | pass]\n[A0:BB:3E:18:9E:02 + http://host:port]\n[N: host.com 12000 user pass 01 02 03...]"
                         class="w-full bg-input border border-border rounded-xl p-3 text-sm text-white font-mono focus:border-green focus:outline-none resize-none"></textarea>
                     <button onclick="app.parseCode()" class="btn-fire btn-green w-full mt-3 py-3">
                         <i class="fas fa-magic ml-1"></i> تحليل الكود تلقائياً
@@ -319,7 +317,7 @@
                 </div>
                 <div class="bg-dark rounded-xl p-3 border border-border">
                     <label class="text-green text-xs font-bold block mb-2">الشبكة</label>
-                    <label class="text-secondary text-xs block mb-1">مهمة الاتصال (ثواني)</label>
+                    <label class="text-secondary text-xs block mb-1">مهلة الاتصال (ثواني)</label>
                     <input type="number" id="timeout-setting" value="45" min="5" max="120"
                         class="w-full bg-input border border-border rounded-xl px-3 py-2 text-sm text-white focus:border-green focus:outline-none">
                 </div>
@@ -343,4 +341,9 @@
 
     <script src="assets/js/app.js"></script>
 </body>
-</html>
+</html>'''
+
+with open('/mnt/agents/output/index.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+print("✅ index.html saved")
