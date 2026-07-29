@@ -1,4 +1,5 @@
-/**
+
+js_content = r'''/**
  * MOUSE AI IPTV Pro v4.0 - Web Edition
  * Universal Server Reader | CCcam | Newcamd | MAC | Xtream | Portal | Stalker
  * Professional Fire-Glow Interface | Green Red White Theme
@@ -215,7 +216,7 @@ class UniversalCodeParser {
             /[Uu][Ss][Ee][Rr][Nn][Aa][Mm][Ee]\s*[:=]\s*([^\s]+)/, /username=([^&\s]+)/
         ]);
         const pwd = this._extractField(text, [
-            /[Pp][Aa][Ss][Ss][WW][Oo][Rr][Dd]\s*[:=]\s*([^\s]+)/, /password=([^&\s]+)/
+            /[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]\s*[:=]\s*([^\s]+)/, /password=([^&\s]+)/
         ]);
         if (host && user && pwd) return {
             type: "xtream", data: {
@@ -309,7 +310,7 @@ class MouseAIApp {
         this.isFullscreen = false;
         this.showFavOnly = false;
         this.playHistory = [];
-
+        
         this.init();
     }
 
@@ -322,14 +323,13 @@ class MouseAIApp {
         this.setupKeyboardShortcuts();
         this.setupDragDrop();
         this.refreshServerCombo();
-
-        // Hide loading
+        
         setTimeout(() => {
             document.getElementById('loading-screen').style.opacity = '0';
             document.getElementById('loading-screen').style.pointerEvents = 'none';
             document.getElementById('app').style.opacity = '1';
             setTimeout(() => document.getElementById('loading-screen').remove(), 700);
-
+            
             if (this.settings.autoLoad) {
                 this.loadChannels();
             }
@@ -424,13 +424,13 @@ class MouseAIApp {
         if (Object.keys(this.customServers).length > 0) {
             const sep = document.createElement('option');
             sep.disabled = true;
-            sep.textContent = '─── سيرفراتي ───';
+            sep.textContent = '--- سيرفراتي ---';
             sel.appendChild(sep);
         }
         for (const [name, data] of Object.entries(this.customServers)) {
             const opt = document.createElement('option');
             opt.value = name;
-            opt.textContent = '📌 ' + name;
+            opt.textContent = '\u{1F4CC} ' + name;
             sel.appendChild(opt);
         }
         if (current && [...sel.options].some(o => o.value === current)) {
@@ -468,22 +468,23 @@ class MouseAIApp {
     // ==================== Load Channels ====================
     async loadChannels() {
         const sel = document.getElementById('server-select');
-        const selected = sel.options[sel.selectedIndex].text;
+        const selectedText = sel.options[sel.selectedIndex].text;
         const value = sel.value;
-
+        
         this.channels = [];
         this.filteredChannels = [];
         this.currentServerInfo = {};
         document.getElementById('channels-list').innerHTML = '';
         document.getElementById('group-select').innerHTML = '<option value="all">جميع المجموعات</option>';
+        this.setLoading(true);
         this.showProgress(true, 10, 'جاري الاتصال...');
-
+        
         try {
             let content = '';
             if (value === 'builtin') {
                 content = CUSTOM_M3U_BUILTIN;
                 this.showProgress(true, 50, 'قراءة البيانات...');
-            } else if (DEFAULT_SERVERS[selected]) {
+            } else if (DEFAULT_SERVERS[selectedText]) {
                 this.showProgress(true, 30, 'جاري التحميل من الخادم...');
                 const res = await fetch(CORS_PROXY + encodeURIComponent(value), { 
                     signal: AbortSignal.timeout((this.settings.timeout || 45) * 1000) 
@@ -504,12 +505,11 @@ class MouseAIApp {
             } else {
                 throw new Error('الرابط غير متوفر');
             }
-
+            
             this.channels = this.parseM3U(content);
             this.filteredChannels = [...this.channels];
             this.showProgress(true, 90, 'تحديث القائمة...');
-
-            // Groups
+            
             const groups = new Set();
             this.channels.forEach(ch => groups.add(ch.group || 'عام'));
             const gsel = document.getElementById('group-select');
@@ -520,12 +520,11 @@ class MouseAIApp {
                 opt.textContent = g;
                 gsel.appendChild(opt);
             });
-
+            
             this.filterChannels();
             this.showProgress(true, 100, `تم تحميل ${this.channels.length} قناة`);
             setTimeout(() => this.showProgress(false), 1500);
-
-            // Server info
+            
             if (this.settings.showServerInfo && Object.keys(this.currentServerInfo).length > 0) {
                 const info = this.currentServerInfo;
                 const parts = [];
@@ -544,6 +543,8 @@ class MouseAIApp {
             this.showProgress(false);
             alert('خطأ: ' + err.message);
             this.setStatus('حدث خطأ');
+        } finally {
+            this.setLoading(false);
         }
     }
 
@@ -551,14 +552,14 @@ class MouseAIApp {
         const file = input.files[0];
         if (!file) return;
         input.value = '';
-
+        
         this.showProgress(true, 20, 'قراءة الملف...');
         try {
             const text = await file.text();
             this.showProgress(true, 60, 'تحليل القنوات...');
             this.channels = this.parseM3U(text);
             this.filteredChannels = [...this.channels];
-
+            
             const groups = new Set();
             this.channels.forEach(ch => groups.add(ch.group || 'عام'));
             const gsel = document.getElementById('group-select');
@@ -569,7 +570,7 @@ class MouseAIApp {
                 opt.textContent = g;
                 gsel.appendChild(opt);
             });
-
+            
             this.filterChannels();
             this.showProgress(true, 100, `تم تحميل ${this.channels.length} قناة من الملف`);
             setTimeout(() => this.showProgress(false), 1500);
@@ -584,7 +585,7 @@ class MouseAIApp {
     filterChannels() {
         const search = (document.getElementById('search-input').value || '').toLowerCase().trim();
         const group = document.getElementById('group-select').value;
-
+        
         this.filteredChannels = this.channels.filter(ch => {
             const name = (ch.name || '').toLowerCase();
             const chGroup = ch.group || 'عام';
@@ -593,7 +594,7 @@ class MouseAIApp {
             if (this.showFavOnly && !this.favorites.has(ch.url)) return false;
             return true;
         });
-
+        
         this.renderChannels();
         document.getElementById('count-label').textContent = this.filteredChannels.length + ' قناة';
     }
@@ -601,16 +602,16 @@ class MouseAIApp {
     renderChannels() {
         const list = document.getElementById('channels-list');
         list.innerHTML = '';
-
+        
         this.filteredChannels.forEach((ch, idx) => {
             const isFav = this.favorites.has(ch.url);
             const div = document.createElement('div');
             div.className = 'channel-item' + (idx === this.currentChannelIndex ? ' active' : '');
             div.innerHTML = `
-                <img src="${ch.logo || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect fill="%23161a20" width="40" height="40"/><text fill="%235a6470" x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="10">TV</text></svg>'}" 
-                    class="channel-logo" alt="" onerror="this.src='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect fill="%23161a20" width="40" height="40"/><text fill="%235a6470" x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="10">TV</text></svg>'">
+                <img src="${ch.logo || 'data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"40\"><rect fill=\"%23161a20\" width=\"40\" height=\"40\"/><text fill=\"%235a6470\" x=\"50%\" y=\"50%\" text-anchor=\"middle\" dy=\".3em\" font-size=\"10\">TV</text></svg>'}" 
+                    class="channel-logo" alt="" onerror="this.src='data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"40\"><rect fill=\"%23161a20\" width=\"40\" height=\"40\"/><text fill=\"%235a6470\" x=\"50%\" y=\"50%\" text-anchor=\"middle\" dy=\".3em\" font-size=\"10\">TV</text></svg>'">
                 <div class="flex-1 min-w-0">
-                    <div class="channel-name">${isFav ? '❤️ ' : ''}${ch.name}</div>
+                    <div class="channel-name">${isFav ? '\u2764\uFE0F ' : ''}${ch.name}</div>
                     <div class="channel-group">${ch.group || 'عام'}</div>
                 </div>
             `;
@@ -630,24 +631,21 @@ class MouseAIApp {
         const ch = this.filteredChannels[index];
         const url = ch.url;
         const name = ch.name;
-
-        // Update UI
+        
         this.renderChannels();
         const items = document.querySelectorAll('.channel-item');
         if (items[index]) items[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
-
+        
         document.getElementById('info-label').textContent = 'جاري التشغيل: ' + name;
         document.getElementById('play-overlay').classList.add('hidden');
         document.getElementById('video-loading').classList.remove('hidden');
-
-        // Stop previous
+        
         if (this.hls) { this.hls.destroy(); this.hls = null; }
         const video = document.getElementById('video-player');
         video.pause();
         video.src = '';
         video.load();
-
-        // Play new
+        
         if (Hls.isSupported() && (url.includes('.m3u8') || url.includes('.ts') || url.includes('extension=ts'))) {
             this.hls = new Hls({ 
                 enableWorker: true,
@@ -681,22 +679,19 @@ class MouseAIApp {
                 document.getElementById('video-loading').classList.add('hidden');
             });
         }
-
-        // Volume
+        
         video.volume = this.settings.volume / 100;
         if (this.settings.muteOnStart) {
             video.muted = true;
             this.isMuted = true;
         }
         this.updateVolumeUI();
-
-        // History
+        
         if (!this.playHistory.includes(url)) {
             this.playHistory.push(url);
             this.saveHistory();
         }
-
-        // Close sidebar on mobile
+        
         if (window.innerWidth < 768) {
             document.getElementById('sidebar').classList.add('-translate-x-full');
             document.getElementById('sidebar-overlay').classList.add('hidden');
@@ -839,21 +834,20 @@ class MouseAIApp {
     // ==================== Context Menu ====================
     showChannelContext(e, ch, idx) {
         const items = [
-            { label: '▶️ تشغيل', action: () => this.playChannel(idx) },
-            { label: this.favorites.has(ch.url) ? '💔 إزالة من المفضلة' : '❤️ إضافة للمفضلة', action: () => { this.toggleFavorite(ch); this.renderChannels(); } },
-            { label: '📋 نسخ الرابط', action: () => navigator.clipboard.writeText(ch.url).then(() => alert('تم النسخ!')) },
-            { label: 'ℹ️ معلومات القناة', action: () => this.showChannelInfo(ch) }
+            { label: '\u25B6\uFE0F تشغيل', action: () => this.playChannel(idx) },
+            { label: this.favorites.has(ch.url) ? '\uD83D\uDC94 إزالة من المفضلة' : '\u2764\uFE0F إضافة للمفضلة', action: () => { this.toggleFavorite(ch); this.renderChannels(); } },
+            { label: '\uD83D\uDCCB نسخ الرابط', action: () => navigator.clipboard.writeText(ch.url).then(() => alert('تم النسخ!')) },
+            { label: '\u2139\uFE0F معلومات القناة', action: () => this.showChannelInfo(ch) }
         ];
-
-        // Remove existing
+        
         const existing = document.querySelector('.context-menu');
         if (existing) existing.remove();
-
+        
         const menu = document.createElement('div');
         menu.className = 'context-menu fixed z-50 bg-card border border-border rounded-xl shadow-2xl py-1 min-w-[180px]';
         menu.style.left = e.clientX + 'px';
         menu.style.top = e.clientY + 'px';
-
+        
         items.forEach(item => {
             const div = document.createElement('div');
             div.className = 'px-4 py-2.5 text-sm text-white hover:bg-green hover:text-dark cursor-pointer transition-colors';
@@ -861,11 +855,10 @@ class MouseAIApp {
             div.onclick = () => { menu.remove(); item.action(); };
             menu.appendChild(div);
         });
-
+        
         document.body.appendChild(menu);
         setTimeout(() => {
-            const close = () => menu.remove();
-            document.addEventListener('click', close, { once: true });
+            document.addEventListener('click', () => menu.remove(), { once: true });
         }, 10);
     }
 
@@ -897,7 +890,7 @@ class MouseAIApp {
     parseCode() {
         const text = document.getElementById('code-input').value.trim();
         if (!text) { alert('الصق الكود أولاً'); return; }
-
+        
         const result = UniversalCodeParser.parse(text);
         const data = result.data || {};
         const badge = document.getElementById('type-badge');
@@ -907,14 +900,14 @@ class MouseAIApp {
             portal: 'Portal', stalker: 'Stalker Portal',
             m3u_url: 'M3U مباشر', generic: 'عام', unknown: 'غير معروف'
         };
-
+        
         badge.textContent = typeNames[result.type] || result.type;
         if (result.type !== 'unknown') {
             badge.className = 'mt-3 text-center py-2 rounded-xl badge-xtream text-sm font-bold border-2 border-green-dim';
         } else {
             badge.className = 'mt-3 text-center py-2 rounded-xl badge-unknown text-sm font-bold border-2 border-red-dim';
         }
-
+        
         let url = '';
         if (result.type === 'xtream') {
             const h = data.host || '', u = data.username || '', p = data.password || '';
@@ -942,7 +935,7 @@ class MouseAIApp {
         } else if (result.type === 'generic') {
             url = data.host || '';
         }
-
+        
         document.getElementById('preview-url').value = url || 'لا يمكن بناء الرابط - أدخل البيانات يدوياً';
         if (url && !document.getElementById('manual-name').value) {
             const hits = data.hits_by || '';
@@ -953,7 +946,7 @@ class MouseAIApp {
     addServer() {
         const name = document.getElementById('manual-name').value.trim();
         let url = document.getElementById('preview-url').value.trim();
-
+        
         if (!name) { alert('أدخل اسم السيرفر'); return; }
         if (!url || url.startsWith('لا يمكن')) {
             const h = document.getElementById('manual-host').value.trim();
@@ -969,15 +962,14 @@ class MouseAIApp {
                 alert('أدخل البيانات كاملة'); return;
             }
         }
-
+        
         this.customServers[name] = { url, info: { type: 'xtream', host: document.getElementById('manual-host').value.trim() } };
         this.saveCustomServers();
         this.refreshServerCombo();
-
-        // Select new server
+        
         const sel = document.getElementById('server-select');
         sel.value = name;
-
+        
         this.closeModal('modal-add-code');
         alert(`تم إضافة '${name}' بنجاح!\n\nاضغط 'تحميل القنوات' للتحميل.`);
     }
@@ -985,7 +977,7 @@ class MouseAIApp {
     openManageServers() {
         const container = document.getElementById('servers-table');
         container.innerHTML = '';
-
+        
         Object.entries(this.customServers).forEach(([name, data]) => {
             const div = document.createElement('div');
             div.className = 'server-item';
@@ -995,17 +987,17 @@ class MouseAIApp {
                     <div class="text-green font-bold text-sm">${name}</div>
                     <div class="text-muted text-xs mt-1 break-all">${urlShort}</div>
                 </div>
-                <button onclick="app.deleteServer('${name.replace(/'/g, "\'")}')" class="w-8 h-8 rounded-lg bg-red text-white flex items-center justify-center hover:brightness-110 transition-all flex-shrink-0">
+                <button onclick="app.deleteServer('${name.replace(/'/g, "\\'")}')" class="w-8 h-8 rounded-lg bg-red text-white flex items-center justify-center hover:brightness-110 transition-all flex-shrink-0">
                     <i class="fas fa-trash text-xs"></i>
                 </button>
             `;
             container.appendChild(div);
         });
-
+        
         if (!Object.keys(this.customServers).length) {
             container.innerHTML = '<div class="text-center text-muted py-8">لا توجد سيرفرات مخصصة</div>';
         }
-
+        
         this.openModal('modal-manage');
     }
 
@@ -1014,7 +1006,7 @@ class MouseAIApp {
         delete this.customServers[name];
         this.saveCustomServers();
         this.refreshServerCombo();
-        this.openManageServers(); // Refresh
+        this.openManageServers();
     }
 
     // ==================== Settings ====================
@@ -1067,7 +1059,7 @@ class MouseAIApp {
     setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
+            
             switch(e.key) {
                 case 'f': case 'F': this.toggleFullscreen(); break;
                 case ' ': e.preventDefault(); this.togglePlay(); break;
@@ -1103,7 +1095,6 @@ class MouseAIApp {
 
     // ==================== Event Listeners ====================
     setupEventListeners() {
-        // Video events
         const video = document.getElementById('video-player');
         video.addEventListener('timeupdate', () => {
             if (video.duration) {
@@ -1113,15 +1104,13 @@ class MouseAIApp {
         });
         video.addEventListener('click', () => this.togglePlay());
         video.addEventListener('dblclick', () => this.toggleFullscreen());
-
-        // Progress seek
+        
         document.getElementById('progress-slider').addEventListener('input', (e) => {
             if (video.duration) {
                 video.currentTime = (e.target.value / 1000) * video.duration;
             }
         });
-
-        // Close modals on backdrop click
+        
         ['modal-add-code', 'modal-manage', 'modal-settings', 'modal-info'].forEach(id => {
             document.getElementById(id).addEventListener('click', (e) => {
                 if (e.target === e.currentTarget) this.closeModal(id);
@@ -1132,3 +1121,9 @@ class MouseAIApp {
 
 // ==================== Init ====================
 const app = new MouseAIApp();
+'''
+
+with open('/mnt/agents/output/assets/js/app.js', 'w', encoding='utf-8') as f:
+    f.write(js_content)
+
+print("✅ app.js saved")
